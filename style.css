@@ -199,6 +199,18 @@ h1 {
     background: #444;
     border-color: #4f8cff;
 }
+.circuit-dropzone.dropzone-error {
+    border: 2px solid #e74c3c !important;
+    animation: shake 0.3s;
+}
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+}
 
 .circuit-dropzone .gate {
     margin: 0;
@@ -310,13 +322,13 @@ h1 {
 .dcnot-control {
     width: 20px;
     height: 20px;
-    background: #9b59b6;
+    background: #8e44ad;
     border-radius: 50%;
     border: 3px solid #fff;
     margin: 0 auto;
     position: relative;
     z-index: 3;
-    box-shadow: 0 0 0 2px #9b59b6;
+    box-shadow: 0 0 0 2px #8e44ad;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -385,9 +397,10 @@ h1 {
 
 .chat-module {
     flex: 1 1 0;
-    max-width: 420px;
+    max-width: 100%;
     min-width: 320px;
-    margin: 0;
+    min-height: 400px;
+    margin: 0 0 0 0;
     background: #181818;
     border-radius: 18px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.18);
@@ -407,7 +420,8 @@ h1 {
 }
 .chat-messages {
     min-height: 32px;
-    max-height: 180px;
+    max-height: 60vh;
+    flex: 1 1 auto;
     overflow-y: auto;
     color: #fff;
     font-size: 1.1rem;
@@ -445,4 +459,69 @@ h1 {
 }
 .chat-send:hover {
     background: #666;
+}
+
+.qiskit-ide {
+    background: #181818;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    margin: 0 auto 0 auto;
+    max-width: 600px;
+    width: 100%;
+    padding: 0 0 18px 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+.qiskit-ide-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 12px 18px 0 18px;
+}
+.qiskit-editor {
+    width: calc(100% - 36px);
+    margin: 0 18px 0 18px;
+    min-height: 180px;
+    max-width: 100%;
+    background: #222;
+    color: #b8e0ff;
+    font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    padding: 18px 16px;
+    resize: vertical;
+    outline: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    box-sizing: border-box;
+}
+.qiskit-run {
+    background: #4f8cff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 24px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    outline: none;
+    margin-right: 4px;
+}
+.qiskit-run:hover {
+    background: #3461b8;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1 1 0;
+    min-width: 340px;
+    max-width: 600px;
+    align-items: stretch;
+    justify-content: flex-start;
+    height: 100%;
 } 
