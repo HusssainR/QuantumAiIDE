@@ -289,9 +289,12 @@ function addDropzoneListeners(dropzone) {
         trashTarget = null;
         const pos = dropzone.dataset.pos.split('-').map(Number);
         let gateType = e.dataTransfer.getData('text/plain');
-        // Prevent stacking single-qubit gates
-        if (["H", "X", "Y", "Z"].includes(gateType) && circuit[pos[0]][pos[1]]) {
-            // Visual feedback: shake or red border
+        // Prevent stacking: check if any component is already present in this dropzone
+        const hasGate = circuit[pos[0]][pos[1]];
+        const hasCnot = cnotGates.some(c => (c.control[0] === pos[0] && c.control[1] === pos[1]) || (c.target[0] === pos[0] && c.target[1] === pos[1]));
+        const hasDcnot = dcnotGates.some(dc => (dc.controls[0][0] === pos[0] && dc.controls[0][1] === pos[1]) || (dc.controls[1][0] === pos[0] && dc.controls[1][1] === pos[1]) || (dc.target[0] === pos[0] && dc.target[1] === pos[1]));
+        const hasMeas = measurements.some(m => m.row === pos[0] && m.col === pos[1]);
+        if (hasGate || hasCnot || hasDcnot || hasMeas) {
             dropzone.classList.add('dropzone-error');
             setTimeout(() => dropzone.classList.remove('dropzone-error'), 400);
             return;
@@ -538,6 +541,43 @@ paletteGates.forEach(gate => {
     gate.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('text/plain', gate.dataset.gate);
     });
+    // Allow drop from circuit to palette to delete
+    gate.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        gate.classList.add('dragover');
+    });
+    gate.addEventListener('dragleave', () => {
+        gate.classList.remove('dragover');
+    });
+    gate.addEventListener('drop', (e) => {
+        e.preventDefault();
+        gate.classList.remove('dragover');
+        // If a circuit component is being dragged here, delete it
+        if (trashTarget) {
+            if (trashTarget.type === 'gate') {
+                circuit[trashTarget.row][trashTarget.col] = null;
+                gateHistory = gateHistory.filter(g => g.desc !== trashTarget.historyDesc);
+            } else if (trashTarget.type === 'cnot') {
+                cnotGates = cnotGates.filter(c => !(c.control[0] === trashTarget.control[0] && c.control[1] === trashTarget.control[1] && c.target[0] === trashTarget.target[0] && c.target[1] === trashTarget.target[1]));
+                gateHistory = gateHistory.filter(g => g.desc !== trashTarget.historyDesc);
+            } else if (trashTarget.type === 'dcnot') {
+                dcnotGates = dcnotGates.filter(dc => !(dc.controls[0][0] === trashTarget.controls[0][0] && dc.controls[0][1] === trashTarget.controls[0][1] && dc.controls[1][0] === trashTarget.controls[1][0] && dc.controls[1][1] === trashTarget.controls[1][1] && dc.target[0] === trashTarget.target[0] && dc.target[1] === trashTarget.target[1]));
+                gateHistory = gateHistory.filter(g => g.desc !== trashTarget.historyDesc);
+            } else if (trashTarget.type === 'measurement') {
+                measurements = measurements.filter(m => !(m.row === trashTarget.row && m.col === trashTarget.col));
+                gateHistory = gateHistory.filter(g => g.desc !== trashTarget.historyDesc);
+            }
+            trashTarget = null;
+            movingCnot = null;
+            movingCnotOrigin = null;
+            movingDcnot = null;
+            movingDcnotOrigin = null;
+            movingMeasurement = null;
+            movingMeasurementOrigin = null;
+            renderCircuitAndCnotDrags();
+            renderGateHistory();
+        }
+    });
 });
 
 // Add/delete line
@@ -718,6 +758,12 @@ function loadQiskitCode(qiskitCode) {
             let col = Math.max(colPtr[q1], colPtr[q2]);
             cnotGates.push({ control: [q1, col], target: [q2, col] });
             colPtr[q1] = colPtr[q2] = col + 1;
+        } else if (/^ccx\s+q\[(\d+)\],\s*q\[(\d+)\],\s*q\[(\d+)\]/i.test(line)) {
+            let m = line.match(/^ccx\s+q\[(\d+)\],\s*q\[(\d+)\],\s*q\[(\d+)\]/i);
+            let q0 = parseInt(m[1]), q1 = parseInt(m[2]), q2 = parseInt(m[3]);
+            let col = Math.max(colPtr[q0], colPtr[q1], colPtr[q2]);
+            dcnotGates.push({ controls: [[q0, col], [q1, col]], target: [q2, col] });
+            colPtr[q0] = colPtr[q1] = colPtr[q2] = col + 1;
         } else if (/^measure\s+q\[(\d+)\]\s*->\s*c\[(\d+)\]/i.test(line)) {
             let m = line.match(/^measure\s+q\[(\d+)\]\s*->\s*c\[(\d+)\]/i);
             let q = parseInt(m[1]), c = parseInt(m[2]);

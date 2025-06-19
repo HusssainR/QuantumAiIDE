@@ -399,7 +399,7 @@ h1 {
     flex: 1 1 0;
     max-width: 100%;
     min-width: 320px;
-    min-height: 400px;
+    min-height: 450px;
     margin: 0 0 0 0;
     background: #181818;
     border-radius: 18px;
@@ -524,4 +524,23 @@ h1 {
     align-items: stretch;
     justify-content: flex-start;
     height: 100%;
+}
+
+.circuit-scroll {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 8px 0 8px 0;
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    scrollbar-width: thin;
+    scrollbar-color: #444 #222;
+}
+.circuit-scroll::-webkit-scrollbar {
+    height: 10px;
+    background: #222;
+}
+.circuit-scroll::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 6px;
 } 
