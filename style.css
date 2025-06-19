@@ -5,9 +5,21 @@ body {
     padding: 0;
 }
 
+.main-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 40px;
+    width: 100%;
+    max-width: 1600px;
+    margin: 40px auto 0 auto;
+}
+
 .container {
-    max-width: 900px;
-    margin: 60px auto;
+    flex: 2 1 0;
+    max-width: none;
+    min-width: 0;
     background: #181818;
     border-radius: 12px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.18);
@@ -65,6 +77,14 @@ h1 {
     width: 32px;
     height: 32px;
 }
+.gate.DCNOT {
+    background: #9b59b6;
+    color: #fff;
+}
+.gate.M {
+    background: #888;
+    color: #222;
+}
 
 .circuit {
     background: #222;
@@ -76,9 +96,12 @@ h1 {
 
 .circuit-controls {
     display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-bottom: 16px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 24px;
 }
 
 .reset-btn {
@@ -110,13 +133,22 @@ h1 {
 .circuit-labels {
     display: flex;
     flex-direction: column;
-    gap: 48px;
     color: #fff;
     font-size: 1.1rem;
     font-weight: bold;
     justify-content: flex-start;
     align-items: flex-end;
-    padding-top: 8px;
+    padding-top: 0;
+    gap: 0;
+}
+.circuit-labels > div {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 48px;
+}
+.circuit-labels > div:last-child {
+    margin-bottom: 0;
 }
 
 .circuit-lines {
@@ -224,14 +256,17 @@ h1 {
     z-index: 2;
 }
 .circuit-controls button {
-    background: #4f8cff;
+    background: #333333;
     color: #fff;
     border: none;
-    border-radius: 6px;
-    padding: 8px 16px;
-    font-size: 1rem;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 1.1rem;
+    font-weight: 500;
     cursor: pointer;
     transition: background 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    outline: none;
 }
 .circuit-controls button:hover {
     background: #3461b8;
@@ -270,4 +305,144 @@ h1 {
 }
 .trashcan svg {
     pointer-events: none;
+}
+
+.dcnot-control {
+    width: 20px;
+    height: 20px;
+    background: #9b59b6;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    margin: 0 auto;
+    position: relative;
+    z-index: 3;
+    box-shadow: 0 0 0 2px #9b59b6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dcnot-target {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    background: #222;
+    margin: 0 auto;
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dcnot-target .plus {
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.dcnot-vertical-line {
+    background: #9b59b6;
+    width: 4px;
+    border-radius: 2px;
+    z-index: 2;
+    position: absolute;
+}
+.measurement-box {
+    width: 40px;
+    height: 40px;
+    background: #888;
+    border-radius: 8px;
+    border: 2px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    color: #222;
+    position: relative;
+    z-index: 3;
+}
+.measurement-dash {
+    border-left: 2px dashed #fff;
+    position: absolute;
+    z-index: 2;
+}
+.classical-label {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: bold;
+    background: #333;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: -28px;
+}
+
+.chat-module {
+    flex: 1 1 0;
+    max-width: 420px;
+    min-width: 320px;
+    margin: 0;
+    background: #181818;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    z-index: 200;
+    padding: 0 0 18px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+.chat-header {
+    text-align: center;
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 500;
+    padding: 32px 0 18px 0;
+    border-radius: 18px 18px 0 0;
+}
+.chat-messages {
+    min-height: 32px;
+    max-height: 180px;
+    overflow-y: auto;
+    color: #fff;
+    font-size: 1.1rem;
+    padding: 0 32px 12px 32px;
+}
+.chat-input-row {
+    display: flex;
+    align-items: center;
+    background: #222;
+    border-radius: 24px;
+    margin: 0 18px;
+    padding: 0 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+.chat-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.1rem;
+    padding: 16px 12px;
+    outline: none;
+}
+.chat-send {
+    background: #444;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    font-size: 1.1rem;
+    margin-left: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.chat-send:hover {
+    background: #666;
 } 
