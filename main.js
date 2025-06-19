@@ -11,6 +11,8 @@ const gateHistoryBox = document.getElementById('gate-history-box');
 const addLineBtn = document.getElementById('add-line');
 const deleteLineBtn = document.getElementById('delete-line');
 const resetBtn = document.getElementById('reset-circuit');
+const trashcan = document.getElementById('trashcan');
+let trashTarget = null;
 
 function getDropzoneOffset(col) {
     // Find the first dropzone in the first line for the given column
@@ -121,6 +123,32 @@ function renderGateHistory() {
     gateHistoryBox.textContent = gateHistory.map(g => g.desc).join(' | ');
 }
 
+function enableTrashcan() {
+    trashcan.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        trashcan.classList.add('dragover');
+    });
+    trashcan.addEventListener('dragleave', () => {
+        trashcan.classList.remove('dragover');
+    });
+    trashcan.addEventListener('drop', (e) => {
+        e.preventDefault();
+        trashcan.classList.remove('dragover');
+        if (trashTarget) {
+            if (trashTarget.type === 'gate') {
+                circuit[trashTarget.row][trashTarget.col] = null;
+                gateHistory = gateHistory.filter(g => g.desc !== trashTarget.historyDesc);
+            } else if (trashTarget.type === 'cnot') {
+                cnotGates = cnotGates.filter(c => !(c.control[0] === trashTarget.control[0] && c.control[1] === trashTarget.control[1] && c.target[0] === trashTarget.target[0] && c.target[1] === trashTarget.target[1]));
+                gateHistory = gateHistory.filter(g => g.desc !== trashTarget.historyDesc);
+            }
+            trashTarget = null;
+            renderCircuit();
+            renderGateHistory();
+        }
+    });
+}
+
 function addDropzoneListeners(dropzone) {
     dropzone.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -132,38 +160,100 @@ function addDropzoneListeners(dropzone) {
     dropzone.addEventListener('drop', (e) => {
         e.preventDefault();
         dropzone.classList.remove('dragover');
+        trashTarget = null;
         const pos = dropzone.dataset.pos.split('-').map(Number);
         let gateType = e.dataTransfer.getData('text/plain');
+        // If moving a gate, remove it from its original position
+        if (window.draggedFrom) {
+            const [fromRow, fromCol] = window.draggedFrom;
+            if (!(fromRow === pos[0] && fromCol === pos[1])) {
+                circuit[fromRow][fromCol] = null;
+                gateHistory = gateHistory.filter(g => g.desc !== `${gateType}(q${fromRow+1})@${fromCol+1}`);
+            }
+            window.draggedFrom = null;
+        }
         if (gateType === 'CNOT') {
             // Only allow CNOT between adjacent lines
             if (pos[0] > 0 && !cnotGates.some(c => c.control[1] === pos[1] && (c.control[0] === pos[0]-1 || c.target[0] === pos[0]))) {
                 cnotGates.push({ control: [pos[0]-1, pos[1]], target: [pos[0], pos[1]] });
                 gateHistory.push({ desc: `CNOT(q${pos[0]},q${pos[0]+1})@${pos[1]+1}` });
             }
-            renderCircuit();
+            renderCircuitAndCnotDrags();
             renderGateHistory();
             return;
         }
         // Single gate: replace
         circuit[pos[0]][pos[1]] = { type: gateType };
         gateHistory.push({ desc: `${gateType}(q${pos[0]+1})@${pos[1]+1}` });
-        renderCircuit();
+        renderCircuitAndCnotDrags();
         renderGateHistory();
     });
 }
 
 function addGateDragListeners(gate) {
+    // Only allow dragging if the gate is actually placed (not empty dropzone)
+    gate.setAttribute('draggable', 'true');
     gate.addEventListener('dragstart', (e) => {
         draggedGate = gate;
         sourceDropzone = gate.parentElement;
         e.dataTransfer.setData('text/plain', gate.dataset.gate);
+        // Mark for trash and for move
+        const pos = sourceDropzone.dataset.pos.split('-').map(Number);
+        trashTarget = {
+            type: 'gate',
+            row: pos[0],
+            col: pos[1],
+            historyDesc: `${gate.dataset.gate}(q${pos[0]+1})@${pos[1]+1}`
+        };
+        window.draggedFrom = pos;
         setTimeout(() => {
             gate.style.visibility = 'hidden';
         }, 0);
     });
     gate.addEventListener('dragend', () => {
         gate.style.visibility = 'visible';
+        trashTarget = null;
+        window.draggedFrom = null;
     });
+}
+
+// Add drag for CNOT controls/targets
+function addCnotDragListeners() {
+    setTimeout(() => {
+        document.querySelectorAll('.cnot-control, .cnot-target').forEach(el => {
+            el.setAttribute('draggable', 'true');
+            el.addEventListener('dragstart', (e) => {
+                // Find which CNOT this is
+                const dz = el.parentElement;
+                const pos = dz.dataset.pos.split('-').map(Number);
+                let cnot = null;
+                let historyDesc = '';
+                if (el.classList.contains('cnot-control')) {
+                    cnot = cnotGates.find(c => c.control[0] === pos[0] && c.control[1] === pos[1]);
+                } else {
+                    cnot = cnotGates.find(c => c.target[0] === pos[0] && c.target[1] === pos[1]);
+                }
+                if (cnot) {
+                    historyDesc = `CNOT(q${Math.min(cnot.control[0],cnot.target[0])+1},q${Math.max(cnot.control[0],cnot.target[0])+1})@${cnot.control[1]+1}`;
+                    trashTarget = {
+                        type: 'cnot',
+                        control: cnot.control,
+                        target: cnot.target,
+                        historyDesc
+                    };
+                }
+            });
+            el.addEventListener('dragend', () => {
+                trashTarget = null;
+            });
+        });
+    }, 0);
+}
+
+// Call after every render
+function renderCircuitAndCnotDrags() {
+    renderCircuit();
+    addCnotDragListeners();
 }
 
 // Palette gates
@@ -178,20 +268,19 @@ paletteGates.forEach(gate => {
 addLineBtn.addEventListener('click', () => {
     numLines++;
     circuit.push(Array(numCols).fill(null));
-    renderCircuit();
+    renderCircuitAndCnotDrags();
 });
 deleteLineBtn.addEventListener('click', () => {
     if (numLines > 1) {
         numLines--;
         circuit.pop();
-        // Remove any CNOTs or gate history referencing deleted line
         cnotGates = cnotGates.filter(c => c.control[0] < numLines && c.target[0] < numLines);
         gateHistory = gateHistory.filter(g => {
             const matches = g.desc.match(/q(\d+)/g);
             if (!matches) return true;
             return matches.every(q => parseInt(q.slice(1)) <= numLines);
         });
-        renderCircuit();
+        renderCircuitAndCnotDrags();
         renderGateHistory();
     }
 });
@@ -201,9 +290,12 @@ resetBtn.addEventListener('click', () => {
     circuit = Array.from({ length: numLines }, () => Array(numCols).fill(null));
     cnotGates = [];
     gateHistory = [];
-    renderCircuit();
+    renderCircuitAndCnotDrags();
     renderGateHistory();
 });
 
-renderCircuit();
+enableTrashcan();
+
+// Initial render
+renderCircuitAndCnotDrags();
 renderGateHistory(); 
