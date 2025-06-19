@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag and Drop Demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Quantum Circuit Drag & Drop</h1>
+        <button class="reset-btn" id="reset-circuit">Reset</button>
+        <div class="circuit-controls">
+            <button id="add-line">Add Line</button>
+            <button id="delete-line">Delete Line</button>
+        </div>
+        <div class="gate-palette">
+            <div class="gate H" draggable="true" data-gate="H">H</div>
+            <div class="gate X" draggable="true" data-gate="X">X</div>
+            <div class="gate Z" draggable="true" data-gate="Z">Z</div>
+            <div class="gate Y" draggable="true" data-gate="Y">Y</div>
+            <div class="gate CNOT" draggable="true" data-gate="CNOT">
+                <svg viewBox="0 0 32 32">
+                    <circle cx="16" cy="8" r="4" fill="#fff" stroke="#8e44ad" stroke-width="2" />
+                    <circle cx="16" cy="24" r="6" fill="#222" stroke="#fff" stroke-width="2" />
+                    <line x1="16" y1="12" x2="16" y2="18" stroke="#8e44ad" stroke-width="3" />
+                    <line x1="13" y1="24" x2="19" y2="24" stroke="#fff" stroke-width="2" />
+                    <line x1="16" y1="21" x2="16" y2="27" stroke="#fff" stroke-width="2" />
+                </svg>
+            </div>
+        </div>
+        <div class="circuit-grid" id="circuit-root"></div>
+        <div class="gate-history-box" id="gate-history-box">
+            <!-- Gate history will appear here -->
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html> 
