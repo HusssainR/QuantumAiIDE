@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
 
 def get_response(msg):
-    client = Groq(api_key="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")
+    client = Groq(api_key="Key")
 
     chat_completion = client.chat.completions.create(
         messages=[
