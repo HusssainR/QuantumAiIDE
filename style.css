@@ -59,7 +59,7 @@ h1 {
 .gate.H { background: #e74c3c; }
 .gate.X { background: #2980b9; }
 .gate.Z { background: #27ae60; }
-.gate.Y { background: #f1c40f; color: #222; }
+.gate.Y { background: #d5ac0a; }
 .gate.CNOT {
     background: #8e44ad;
     position: relative;

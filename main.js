@@ -673,7 +673,7 @@ function getNextClassicalBit(col) {
 }
 
 function sendChatMessage() {
-    const msg = chatInput.value.trim() + " " + exportToQiskitCode();
+    const msg = chatInput.value.trim() ; //+ " " + exportToQiskitCode() rember to add this back in
     if (msg) {
         chatMessages.innerHTML = `<div style='color:#aaa'>${msg}</div>`;
         chatInput.value = '';
