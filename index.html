@@ -50,7 +50,9 @@
                     </svg>
                 </div>
             </div>
-            <div class="circuit-grid" id="circuit-root"></div>
+            <div class="circuit-scroll">
+                <div class="circuit-grid" id="circuit-root"></div>
+            </div>
             <div class="gate-history-box" id="gate-history-box">
                 <!-- Gate history will appear here -->
             </div>
@@ -64,12 +66,20 @@
                 </svg>
             </div>
         </div>
-        <div class="chat-module">
-            <div class="chat-header">Ask Me Anything</div>
-            <div class="chat-messages" id="chat-messages"></div>
-            <div class="chat-input-row">
-                <input type="text" id="chat-input" class="chat-input" placeholder="Type Here" />
-                <button id="chat-send" class="chat-send">Ask</button>
+        <div class="sidebar">
+            <div class="chat-module">
+                <div class="chat-header">Ask Me Anything</div>
+                <div class="chat-messages" id="chat-messages"></div>
+                <div class="chat-input-row">
+                    <input type="text" id="chat-input" class="chat-input" placeholder="Type Here" />
+                    <button id="chat-send" class="chat-send">?</button>
+                </div>
+            </div>
+            <div class="qiskit-ide">
+                <div class="qiskit-ide-header">
+                    <button id="qiskit-run" class="qiskit-run">Run</button>
+                </div>
+                <textarea id="qiskit-editor" class="qiskit-editor" rows="8" spellcheck="false" placeholder="Enter Qiskit code here..."></textarea>
             </div>
         </div>
     </div>

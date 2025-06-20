@@ -1,5 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import qiskit
+from groq import Groq
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -8,8 +11,29 @@ CORS(app)
 def chat():
     data = request.get_json()
     msg = data.get('message', '')
-    # For now, just echo the message
-    return jsonify({'reply': f'You said hiiii: {msg}'})
+    output = get_response(msg)
+    return jsonify({'reply': output})
 
 if __name__ == '__main__':
     app.run(debug=True) 
+
+
+
+def get_response(msg):
+    client = Groq(api_key="Key")
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+            "role": "system",
+            "content": "You are a helpful assistant that can only answer questions about quantum computing and qiskit."
+            },
+            {
+                "role": "user",
+                "content": msg,
+            }
+        ],
+        model="llama-3.3-70b-versatile",
+    )
+
+    return(chat_completion.choices[0].message.content)
